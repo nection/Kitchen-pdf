@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Impremta Digital - Panell de Control</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        .panel {
+            text-align: center;
+            padding: 40px;
+            border-radius: 10px;
+            background-color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2C2A29;
+            margin-bottom: 20px;
+        }
+        p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .button {
+            background-color: #007bff;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+        .button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        #status-message {
+            margin-top: 20px;
+            font-style: italic;
+            color: #555;
+            min-height: 20px; /* Per evitar que el disseny salti */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="panel">
+        <h1>Impremta Digital de Catàlegs</h1>
+        <p>Fes clic al botó per generar el catàleg complet en format PDF i descarregar-lo. <br>Com a alternativa, o si vols un enllaç directe, pots anar a la següent URL per crear el PDF:<br>http://localhost:3000/generar-cataleg</p>
+        
+        <button id="btn-generar" class="button">Generar i Descarregar Catàleg</button>
+        
+        <p id="status-message"></p>
+    </div>
+
+    <script>
+        // Seleccionem els elements del DOM que farem servir
+        const generateButton = document.getElementById('btn-generar');
+        const statusMessage = document.getElementById('status-message');
+
+        // Afegim un 'listener' per quan l'usuari faci clic al botó
+        generateButton.addEventListener('click', async () => {
+            // Desactivem el botó per evitar múltiples clics
+            generateButton.disabled = true;
+            generateButton.textContent = 'Generant...';
+            statusMessage.textContent = 'El procés ha començat, si us plau, espera. Això pot trigar uns segons...';
+
+            try {
+                // Fem una petició a la nostra ruta existent que genera el PDF
+                // No cal posar http://localhost:3000 perquè estem al mateix domini
+                const response = await fetch('/generar-cataleg');
+
+                // Comprovem si la resposta del servidor ha estat correcta (codi 2xx)
+                if (!response.ok) {
+                    throw new Error(`Error del servidor: ${response.status} ${response.statusText}`);
+                }
+
+                // El servidor ens retorna el PDF com un "blob" (Binary Large Object)
+                const pdfBlob = await response.blob();
+
+                // Creem una URL temporal per a aquest arxiu a la memòria del navegador
+                const url = window.URL.createObjectURL(pdfBlob);
+                
+                // Creem un enllaç (<a>) invisible
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                // Li diem al navegador quin nom ha de tenir l'arxiu descarregat
+                a.download = 'cataleg-generat.pdf';
+                
+                // Afegim l'enllaç al document i el cliquem automàticament per iniciar la descàrrega
+                document.body.appendChild(a);
+                a.click();
+                
+                // Netegem: eliminem l'enllaç i la URL temporal per alliberar memòria
+                window.URL.revokeObjectURL(url);
+                a.remove();
+                
+                statusMessage.textContent = 'Catàleg descarregat correctament!';
+
+            } catch (error) {
+                // Si hi ha qualsevol error, ho mostrem a l'usuari i a la consola
+                console.error('Error durant la generació o descàrrega del PDF:', error);
+                statusMessage.textContent = 'Hi ha hagut un error en generar el PDF. Revisa la consola del navegador.';
+            } finally {
+                // Tant si ha anat bé com si no, tornem a activar el botó
+                generateButton.disabled = false;
+                generateButton.textContent = 'Generar i Descarregar Catàleg';
+            }
+        });
+    </script>
+
+</body>
+</html>

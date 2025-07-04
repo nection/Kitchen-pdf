@@ -1,0 +1,38 @@
+<div class="pagina pagina-index">
+  <style>
+    /* Estils ESPECÍFICS per a la pàgina de l'índex */
+    .pagina-index { padding: 2cm 2cm 1.5cm 2cm; justify-content: space-between; }
+    .pagina-index .capcalera-index { display: flex; justify-content: flex-end; border-bottom: 1px solid #000; padding-bottom: 5px; margin-bottom: 20px; }
+    .pagina-index .capcalera-index h1 { font-size: 10px; font-weight: 600; text-transform: uppercase; margin: 0; letter-spacing: 1px; }
+    .pagina-index .contingut-index { display: flex; gap: 40px; font-family: 'Gill Sans', sans-serif; font-size: 10px; line-height: 1.8; }
+    .pagina-index .columna-index { flex: 1; }
+    .pagina-index .grup-index { margin-bottom: 20px; }
+    .pagina-index .grup-index .titol-grup { font-weight: 600; margin-bottom: 5px; }
+    .pagina-index .linia-index { display: flex; justify-content: space-between; }
+    .pagina-index .linia-index .numero-pagina { text-align: right; min-width: 25px; padding-right: 5px; }
+    .pagina-index .linia-index .titol-entrada { text-align: left; }
+    .pagina-index .peu-de-pagina-index { text-align: right; font-size: 12px; margin-top: auto; }
+  </style>
+
+  <div class="capcalera-index"><h1>ÍNDICE</h1></div>
+  <div class="contingut-index">
+    {{#each columnes}}
+      <div class="columna-index">
+        {{#each this}}
+          <div class="grup-index">
+            <p class="titol-grup">{{this.titolGrup}}</p>
+            {{#each this.entrades}}
+              <div class="linia-index">
+                <span class="numero-pagina" data-referencia="{{this.idSeccio}}"></span>
+                <span class="titol-entrada">{{this.titol}}</span>
+              </div>
+            {{/each}}
+          </div>
+        {{/each}}
+      </div>
+    {{/each}}
+  </div>
+  <div class="peu-de-pagina-index">
+    <span class="numero-pagina" data-referencia="aquesta-mateixa-pagina"></span>
+  </div>
+</div>
